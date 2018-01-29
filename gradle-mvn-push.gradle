@@ -1,0 +1,173 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+ext{
+//  MAVEN_MODULE_NAME = repo.moduleName
+  MAVEN_GOURP_ID = repo.groupId
+  MAVEN_ARTIFACTID = repo.artifactId
+  MAVEN_VERSOIN = repo.version
+  MAVEN_ARCHIVE_TYPE = repo.type
+}
+
+
+def isReleaseBuild() {
+  print("repo-->"+repo);
+  return MAVEN_VERSOIN.contains("SNAPSHOT") == false
+}
+
+def isLocalMaven() {
+  return false
+}
+
+def getReleaseRepositoryUrl() {
+  if (isLocalMaven()) {
+    return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+            : "file:///Users/wenba/fengxiang/maven/release/"
+  } else {
+    return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+        : "http://192.168.90.49:8081/repository/release/"
+  }
+}
+
+def getSnapshotRepositoryUrl() {
+  if (isLocalMaven()) {
+    return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+            : "file:///Users/wenba/fengxiang/maven/snapshot/"
+  } else {
+    return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+        : "http://192.168.90.49:8081/repository/snapshot/"
+  }
+}
+
+def getRepositoryUsername() {
+  return hasProperty('SONATYPE_NEXUS_USERNAME') ? SONATYPE_NEXUS_USERNAME : "wenba"
+}
+
+def getRepositoryPassword() {
+  return hasProperty('SONATYPE_NEXUS_PASSWORD') ? SONATYPE_NEXUS_PASSWORD : "wenba2017"
+}
+
+configurations {
+  archives {
+    extendsFrom configurations.default
+  }
+}
+
+afterEvaluate { project ->
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+        if (isLocalMaven()) {
+          if (isReleaseBuild()) {
+            repository(url: getReleaseRepositoryUrl())
+          } else {
+            snapshotRepository(url: getSnapshotRepositoryUrl())
+          }
+        } else {
+          if (isReleaseBuild()) {
+            repository(url: getReleaseRepositoryUrl()) {
+              authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            }
+          } else {
+            snapshotRepository(url: getSnapshotRepositoryUrl()) {
+              authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            }
+          }
+        }
+
+        pom.project {
+//          name = MAVEN_MODULE_NAME
+          groupId = MAVEN_GOURP_ID
+          artifactId = MAVEN_ARTIFACTID
+          version = MAVEN_VERSOIN
+          packaging = MAVEN_ARCHIVE_TYPE
+        }
+      }
+    }
+  }
+
+  signing {
+    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+  }
+
+
+
+  if (project.getPlugins().hasPlugin('com.android.application') ||
+          project.getPlugins().hasPlugin('com.android.library')) {
+    task install(type: Upload, dependsOn: assemble) {
+      repositories.mavenInstaller {
+        configuration = configurations.archives
+
+        pom.project {
+//          name = MAVEN_MODULE_NAME
+          groupId = MAVEN_GOURP_ID
+          artifactId = MAVEN_ARTIFACTID
+          version = MAVEN_VERSOIN
+          packaging = MAVEN_ARCHIVE_TYPE
+        }
+      }
+    }
+
+    task androidJavadocs(type: Javadoc) {
+      source = android.sourceSets.main.java.srcDirs
+//      classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+
+    task androidJavadocsJar(type: Jar) {
+      classifier = 'javadoc'
+      from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+      classifier = 'sources'
+      from android.sourceSets.main.java.source
+    }
+  } else {
+    install {
+      repositories.mavenInstaller {
+
+        pom.project {
+//          name = MAVEN_MODULE_NAME
+          groupId = MAVEN_GOURP_ID
+          artifactId = MAVEN_ARTIFACTID
+          version = MAVEN_VERSOIN
+          packaging = MAVEN_ARCHIVE_TYPE
+        }
+      }
+    }
+
+    task sourcesJar(type: Jar, dependsOn:classes) {
+      classifier = 'sources'
+      from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn:javadoc) {
+      classifier = 'javadoc'
+      from javadoc.destinationDir
+    }
+  }
+
+  if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+      tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+        options.addStringOption('charSet', 'UTF-8')
+      }
+    }
+  }
+
+  artifacts {
+    if (project.getPlugins().hasPlugin('com.android.application') ||
+        project.getPlugins().hasPlugin('com.android.library')) {
+      archives androidSourcesJar
+      archives androidJavadocsJar
+    } else {
+      archives sourcesJar
+      archives javadocJar
+    }
+  }
+}

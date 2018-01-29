@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <color name="buttons_view_bk">@android:color/darker_gray</color>
+    <color name="content_bk">@android:color/background_light</color>
+    <color name="title_text">@android:color/holo_blue_dark</color>
+    <color name="theme_color_1">#2391FE</color> <!-- 主题颜色 -->
+
+</resources>

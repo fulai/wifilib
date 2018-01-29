@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style name="PlatformDialog" parent="android:Theme.Dialog" />
+
+    <style name="textAppearanceBaseContent" parent="@android:style/TextAppearance.Small.Inverse" />
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!--<item name="colorPrimary">@color/theme</item>-->
+        <item name="colorPrimaryDark">@color/theme_color_1</item>
+        <!--<item name="colorAccent">@color/theme</item>-->
+        <item name="android:buttonStyle">@style/App.Button</item>
+        <item name="colorPrimary">@color/theme_color_1</item>
+        <item name="colorAccent">@color/theme_color_1</item>
+    </style>
+
+    <style name="App.Button" parent="@android:style/Widget.Button">
+        <item name="android:minHeight">5dip</item>
+        <item name="android:minWidth">5dip</item>
+    </style>
+
+</resources>
