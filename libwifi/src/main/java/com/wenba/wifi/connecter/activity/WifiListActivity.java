@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -43,6 +44,8 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
     private TextView backTxt;
     private ListView listView;
     private HashMap<String, String> initWifiInfo = new HashMap<>();
+    private boolean init = false;
+    private Handler mHandler = new Handler();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         }
+
     }
 
     private void registerBroadcast() {
@@ -150,7 +154,21 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
                 Log.i("networkinfo", "刷新wifi");
                 showWifi();
             }
-
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!init && WifiUtil.isWifiConn(WifiListActivity.this) && WifiUtil.isNetworkAvalible
+                            (WifiListActivity
+                                    .this)) {
+                        Log.i("kkkk", "have network");
+                        init = true;
+                        Intent intent1 = new Intent();
+                        intent1.setAction("com.wenba.init.fastInitActivity.action");
+                        intent1.addCategory(Intent.CATEGORY_DEFAULT);
+                        startActivity(intent1);
+                    }
+                }
+            }, 3000);
         }
     };
 
