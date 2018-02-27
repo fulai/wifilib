@@ -15,16 +15,19 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wenba.wifi.connecter.R;
 import com.wenba.wifi.connecter.adapter.ListBaseAdapter;
 import com.wenba.wifi.connecter.model.ScanResultInfo;
 import com.wenba.wifi.connecter.receiver.NetworkConnectChangedReceiver;
 import com.wenba.wifi.connecter.util.Constants;
+import com.wenba.wifi.connecter.util.Wifi;
 import com.wenba.wifi.connecter.util.WifiStatus;
 import com.wenba.wifi.connecter.util.WifiUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,11 +42,14 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
 
     private TextView backTxt;
     private ListView listView;
+    private HashMap<String, String> initWifiInfo = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acitvity_wifi_list);
+        initWifiInfo.put("Wenba 2.4G", "wenba100wifi");
+        initWifiInfo.put("Wenba 5G", "wenba100wifi");
         backTxt = findViewById(R.id.back_txt);
         backTxt.setOnClickListener(this);
         listView = findViewById(R.id.listview);
@@ -51,6 +57,27 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
         listView.setOnItemClickListener(mItemOnClick);
         registerBroadcast();
         showWifi();
+        connWifi();
+
+    }
+
+    private void connWifi() {
+        boolean isConn = false;
+        for (String key : initWifiInfo.keySet()) {
+            for (ScanResultInfo info : mScanResultInfos) {
+                if (key.equals(info.getScanResult().SSID) && !isConn) {
+                    boolean connResult = Wifi.connectToNewNetwork(WifiListActivity.this, mWifiManager, info
+                                    .getScanResult()
+                            , initWifiInfo.get(key)
+                            , 0);
+                    if (connResult) {
+                        isConn = true;
+                        Toast.makeText(WifiListActivity.this, "已经连接", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     private void registerBroadcast() {
@@ -70,7 +97,7 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
     private void showWifi() {
         String stringSSID = WifiUtil.getConnWifiSSID(this);
         String status = "";
-        if (!TextUtils.isEmpty(stringSSID) && WifiUtil.isConnection(this)) {
+        if (!TextUtils.isEmpty(stringSSID) && WifiUtil.isWifiConn(this)) {
             status = WifiStatus.connected.getName();
         } else {
             status = WifiStatus.saved.getName();
@@ -218,26 +245,4 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         finish();
     }
-
-//    private static void downloadWifiConnecter(final Activity activity) {
-//        Intent downloadIntent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse("market://details?id=com.farproc" +
-//                ".wifi.connecter"));
-//        try {
-//            activity.startActivity(downloadIntent);
-//            Toast.makeText(activity, "Please install this app.", Toast.LENGTH_LONG).show();
-//        } catch (ActivityNotFoundException e) {
-//            // Market app is not available in this device.
-//            // Show download page of this project.
-//            try {
-//                downloadIntent.setData(Uri.parse("http://code.google.com/p/android-wifi-connecter/downloads/list"));
-//                activity.startActivity(downloadIntent);
-//                Toast.makeText(activity, "Please download the apk and install it manully.", Toast.LENGTH_LONG).show();
-//            } catch (ActivityNotFoundException e2) {
-//                // Even the Browser app is not available!!!!!
-//                // Show a error message!
-//                Toast.makeText(activity, "Fatel error! No web browser app in your device!!!", Toast.LENGTH_LONG)
-// .show();
-//            }
-//        }
-//    }
 }

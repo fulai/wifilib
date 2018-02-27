@@ -64,6 +64,9 @@ public class NewNetworkContent extends BaseContent {
         });
     }
 
+    /**
+     * 连接wifi
+     */
     private OnClickListener mConnectOnClick = new OnClickListener() {
 
         @Override

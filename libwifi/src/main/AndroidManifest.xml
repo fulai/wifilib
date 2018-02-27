@@ -26,22 +26,6 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/PlatformDialog" />
-        <!--<intent-filter>-->
-        <!--<category android:name="android.intent.category.INFO" />-->
-        <!--</intent-filter>-->
-
-        <!--<intent-filter>-->
-        <!--<action android:name="com.wenba.wifi.connecter.action.CONNECT_OR_EDIT" />-->
-        <!--<category android:name="android.intent.category.DEFAULT" />-->
-        <!--</intent-filter>-->
-        <!--</activity>-->
-
-        <!--<receiver android:name=".receiver.NetworkConnectChangedReceiver">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="android.NET.conn.CONNECTIVITY_CHANGE" />-->
-        <!--<action android:name="android.net.wifi.supplicant.STATE_CHANGE"/>-->
-        <!--</intent-filter>-->
-        <!--</receiver>-->
 
     </application>
 
