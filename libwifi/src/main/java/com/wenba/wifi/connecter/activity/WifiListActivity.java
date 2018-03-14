@@ -163,7 +163,7 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
                         Log.i("kkkk", "have network");
                         init = true;
                         Intent intent1 = new Intent();
-                        intent1.setAction("com.wenba.init.fastInitActivity.action");
+                        intent1.setAction("com.wenba.init.action.SETTINGACCOUNTACTIVITY");
                         intent1.addCategory(Intent.CATEGORY_DEFAULT);
                         startActivity(intent1);
                     }
