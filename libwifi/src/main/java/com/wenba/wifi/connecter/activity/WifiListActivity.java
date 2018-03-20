@@ -51,7 +51,9 @@ public class WifiListActivity extends AppCompatActivity implements View.OnClickL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acitvity_wifi_list);
-        initWifiInfo.put("Wenba 2.4G", "wenba100wifi");
+        initWifiInfo.put("Aixue01", "Aixue2018");
+        initWifiInfo.put("Aixue02", "Aixue2018");
+        initWifiInfo.put("Aixue03", "Aixue2018");
         initWifiInfo.put("Wenba 5G", "wenba100wifi");
         backTxt = findViewById(R.id.back_txt);
         backTxt.setOnClickListener(this);
